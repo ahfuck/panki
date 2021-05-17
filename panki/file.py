@@ -122,6 +122,12 @@ class CssFile(File):
         self.contents = reindent('\n'.join(self.contents)).splitlines()
 
 
+class JsFile(File):
+
+    def prettify(self):
+        self.contents = reindent('\n'.join(self.contents)).splitlines()
+
+
 class TemplateFile(File):
 
     def __init__(self, path=None, contents=None):
@@ -231,12 +237,14 @@ file_extension_map = {
     '.yml': YamlFile,
     '.csv': CsvFile,
     '.css': CssFile,
+    '.js': JsFile,
     '.html': TemplateFile
 }
 config_file_extensions = ('.json', '.yaml', '.yml')
 data_file_extensions = ('.csv', '.json', '.yaml', '.yml')
-template_extensions = ('.html')
-css_extensions = ('.css')
+template_extensions = ('.html',)
+css_extensions = ('.css',)
+js_extensions = ('.js',)
 
 
 def load_config_file(path):
@@ -313,6 +321,25 @@ def require_css_file(path):
 
 def is_css_file(path):
     return file_extension(path) in css_extensions
+
+
+def load_js_file(path):
+    require_js_file(path)
+    return load_file(path)
+
+
+def create_js_file(path, contents=None):
+    require_js_file(path)
+    return create_file(path, contents)
+
+
+def require_js_file(path):
+    if not is_js_file(path):
+        raise ValueError('path is not a supported script file format')
+
+
+def is_js_file(path):
+    return file_extension(path) in js_extensions
 
 
 def load_file(path):
