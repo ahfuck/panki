@@ -1,7 +1,7 @@
 import os
 import shutil
 from .file import create_config_file, load_config_file, load_css_file, \
-    load_data_file, load_template_file
+    load_data_file, load_js_file, load_template_file
 from .util import generate_id
 
 
@@ -327,6 +327,16 @@ def load_note_type(project, config):
         )
         css_file = load_css_file(resolved_path)
         note_type.add_css(css_path, css_file)
+    js_paths = config.get('js', [])
+    if not isinstance(js_paths, list):
+        js_paths = [js_paths]
+    for js_path in js_paths:
+        resolved_path = project.resolve_path(
+            js_path,
+            relative_to=note_type.path
+        )
+        js_file = load_js_file(resolved_path)
+        note_type.add_js(js_path, js_file)
     load_note_type_card_types(project, note_type, config.get('cardTypes', []))
 
 
