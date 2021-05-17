@@ -159,6 +159,14 @@ class TemplateFile(File):
     def style(self, contents):
         self.contents['style'] = contents
 
+    @property
+    def script(self):
+        return self.contents.get('script', [])
+
+    @script.setter
+    def script(self, contents):
+        self.contents['script'] = contents
+
     def read(self):
         with open(self.path, 'r') as file:
             template = soup(file).template
@@ -177,11 +185,17 @@ class TemplateFile(File):
             if style:
                 lines = ''.join(map(str, style.contents)).split('\n')
                 self.style = [line for line in lines if line.strip()]
+            self.script = []
+            script = template.find('script') if template else None
+            if script:
+                lines = ''.join(map(str, script.contents)).split('\n')
+                self.script = [line for line in lines if line.strip()]
 
     def write(self):
         with open(self.path, 'w') as file:
             file.write('<template>\n')
             self.write_style_element(file)
+            self.write_script_element(file)
             self.write_front_element(file)
             self.write_back_element(file)
             file.write('</template>\n')
@@ -210,10 +224,19 @@ class TemplateFile(File):
                 file.write('    {}\n'.format(line))
             file.write('  </style>\n')
 
+    def write_script_element(self, file):
+        script = self.script
+        if script:
+            file.write('  <script>\n')
+            for line in script:
+                file.write('    {}\n'.format(line))
+            file.write('  </script>\n')
+
     def prettify(self):
         self.prettify_front()
         self.prettify_back()
         self.prettify_style()
+        self.prettify_script()
 
     def prettify_front(self):
         front_str = '\n'.join(self.front)
@@ -229,6 +252,11 @@ class TemplateFile(File):
         style = CssFile(contents=self.style)
         style.prettify()
         self.style = style.contents
+
+    def prettify_script(self):
+        script = JsFile(contents=self.script)
+        script.prettify()
+        self.script = script.contents
 
 
 file_extension_map = {
