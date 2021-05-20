@@ -54,6 +54,7 @@ def add_decks(collection, project):
         deck['id'] = deck_config.id
         collection.decks.update(deck)
         for note_group in deck_config.notes:
+            note_type = project.find_or_add_note_type(name=note_group.type)
             model = collection.models.byName(note_group.type)
             collection.models.setCurrent(model)
             guid_format = note_group.guid
@@ -75,6 +76,12 @@ def add_decks(collection, project):
                         __NoteTypeID__=model['id']
                     )
                     note.guid = base64.b64encode(guid.encode('utf-8'))
+                    for tag in note_type.tags:
+                        tag = tag.format(**record)
+                        note.add_tag(tag)
+                    for tag in note_group.tags:
+                        tag = tag.format(**record)
+                        note.add_tag(tag)
                     collection.add_note(note, deck_config.id)
 
 

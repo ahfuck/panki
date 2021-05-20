@@ -65,7 +65,8 @@ class TestCollection(unittest.TestCase):
         note_type = project.add_note_type(
             id=1234567890123,
             name='Foo Note Type',
-            fields=['Foo1', 'Foo2']
+            fields=['Foo1', 'Foo2'],
+            tags=['Tag1', 'Tag2']
         )
         file = panki.file.create_file(
             'foo.css',
@@ -115,7 +116,11 @@ class TestCollection(unittest.TestCase):
             name='Bar Deck',
             package=os.path.join('packages', 'my-bar.apkg')
         )
-        note_group = deck.add_notes(type='Foo Note Type', guid='{Foo1}:{Foo2}')
+        note_group = deck.add_notes(
+            type='Foo Note Type',
+            guid='{Foo1}:{Foo2}',
+            tags=['Tag3']
+        )
         file = panki.file.create_file(
             'data1.csv',
             [
@@ -177,6 +182,17 @@ class TestCollection(unittest.TestCase):
             notes[i].__setitem__.assert_has_calls([
                 call('Foo1', values[1]),
                 call('Foo2', values[2])
+            ])
+        note_tags = [
+            ('Tag1', 'Tag2', 'Tag3'),
+            ('Tag1', 'Tag2', 'Tag3'),
+            ('Tag1', 'Tag2'),
+            ('Tag1', 'Tag2')
+        ]
+        for i, tags in enumerate(note_tags):
+            notes[i].add_tag.assert_has_calls([
+                call(tag)
+                for tag in tags
             ])
         collection.add_note.assert_has_calls([
             call(note, 1234567890125)

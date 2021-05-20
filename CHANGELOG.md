@@ -27,7 +27,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 ## Releases
 
 ### [Unreleased]
-...
+#### Added
+- Tag support
 
 ### [0.1.1] - 2020-12-14
 #### Added
