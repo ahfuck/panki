@@ -171,25 +171,29 @@ class TemplateFile(File):
         with open(self.path, 'r') as file:
             template = soup(file).template
             self.front = []
-            front = template.find('front') if template else None
-            if front:
-                lines = ''.join(map(str, front.contents)).split('\n')
-                self.front = [line for line in lines if line.strip()]
+            if template:
+                front = template.find('front', recursive=False)
+                if front:
+                    lines = ''.join(map(str, front.contents)).split('\n')
+                    self.front = [line for line in lines if line.strip()]
             self.back = []
-            back = template.find('back') if template else None
-            if back:
-                lines = ''.join(map(str, back.contents)).split('\n')
-                self.back = [line for line in lines if line.strip()]
+            if template:
+                back = template.find('back', recursive=False)
+                if back:
+                    lines = ''.join(map(str, back.contents)).split('\n')
+                    self.back = [line for line in lines if line.strip()]
             self.style = []
-            style = template.find('style') if template else None
-            if style:
-                lines = ''.join(map(str, style.contents)).split('\n')
-                self.style = [line for line in lines if line.strip()]
+            if template:
+                style = template.find('style', recursive=False)
+                if style:
+                    lines = ''.join(map(str, style.contents)).split('\n')
+                    self.style = [line for line in lines if line.strip()]
             self.script = []
-            script = template.find('script') if template else None
-            if script:
-                lines = ''.join(map(str, script.contents)).split('\n')
-                self.script = [line for line in lines if line.strip()]
+            if template:
+                script = template.find('script', recursive=False)
+                if script:
+                    lines = ''.join(map(str, script.contents)).split('\n')
+                    self.script = [line for line in lines if line.strip()]
 
     def write(self):
         with open(self.path, 'w') as file:
