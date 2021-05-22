@@ -78,10 +78,10 @@ def add_decks(collection, project):
                     note.guid = base64.b64encode(guid.encode('utf-8'))
                     for tag in note_type.tags:
                         tag = tag.format(**record)
-                        note.add_tag(tag)
+                        note.addTag(tag)
                     for tag in note_group.tags:
                         tag = tag.format(**record)
-                        note.add_tag(tag)
+                        note.addTag(tag)
                     collection.add_note(note, deck_config.id)
 
 
