@@ -190,7 +190,7 @@ class TestCollection(unittest.TestCase):
             ('Tag1', 'Tag2')
         ]
         for i, tags in enumerate(note_tags):
-            notes[i].add_tag.assert_has_calls([
+            notes[i].addTag.assert_has_calls([
                 call(tag)
                 for tag in tags
             ])
