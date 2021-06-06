@@ -57,6 +57,7 @@ class TestCollection(unittest.TestCase):
             return note
 
         collection.newNote.side_effect = create_note
+        # End of mocking collection
         path = os.path.join('foobar', 'project.json')
         project = panki.config.ProjectConfig(path=path)
         project.package = os.path.join('packages', 'my-package.apkg')
@@ -65,7 +66,8 @@ class TestCollection(unittest.TestCase):
         note_type = project.add_note_type(
             id=1234567890123,
             name='Foo Note Type',
-            fields=['Foo1', 'Foo2']
+            fields=['Foo1', 'Foo2'],
+            tags=['Tag1', 'Tag2']
         )
         file = panki.file.create_file(
             'foo.css',
@@ -76,6 +78,15 @@ class TestCollection(unittest.TestCase):
             ]
         )
         note_type.add_css(file.path, file)
+        file = panki.file.create_file(
+            'foo.js',
+            [
+                'function foo_func() {',
+                '  return 4;',
+                '}'
+            ]
+        )
+        note_type.add_js(file.path, file)
         card_type = note_type.add_card_type(name='Foo Card Type')
         file = panki.file.create_file(
             'foo.html',
@@ -91,6 +102,11 @@ class TestCollection(unittest.TestCase):
                 'style': [
                     '.foo2 {',
                     '  color: red;',
+                    '}'
+                ],
+                'script': [
+                    'function foo_func2() {',
+                    '  return 5;',
                     '}'
                 ]
             }
@@ -115,7 +131,11 @@ class TestCollection(unittest.TestCase):
             name='Bar Deck',
             package=os.path.join('packages', 'my-bar.apkg')
         )
-        note_group = deck.add_notes(type='Foo Note Type', guid='{Foo1}:{Foo2}')
+        note_group = deck.add_notes(
+            type='Foo Note Type',
+            guid='{Foo1}:{Foo2}',
+            tags=['Tag3']
+        )
         file = panki.file.create_file(
             'data1.csv',
             [
@@ -134,6 +154,7 @@ class TestCollection(unittest.TestCase):
         )
         note_group.add_data(file.path, file)
         deck = project.add_deck(id=1234567890126, name='Baz Deck')
+        # End project build
         self.assertEqual(
             panki.collection.build_collection(project),
             collection
@@ -158,9 +179,48 @@ class TestCollection(unittest.TestCase):
             call('id', 1234567890123),
             call('css', foo_note_type_css)
         ])
+        collection.models.new_field.assert_has_calls([
+            call('Foo1'),
+            call('Foo2'),
+            call('Foo3'),
+            call('Foo4')
+        ])
         collection.models.add_field.assert_has_calls([
             call(foo_note_type, fields['Foo1']),
             call(foo_note_type, fields['Foo2'])
+        ])
+        collection.models.new_template.assert_has_calls([
+            call('Foo Card Type'),
+            call('Foo Card Type 2')
+        ])
+        foo_card_type = templates['Foo Card Type']
+        foo_card_type_front = '\n'.join([
+            '<script>',
+            'function foo_func() {',
+            '  return 4;',
+            '}',
+            'function foo_func2() {',
+            '  return 5;',
+            '}',
+            '</script>',
+            '{Front}'
+        ])
+        foo_card_type_back = '\n'.join([
+            '{FrontSide}',
+            '<hr id="answer">',
+            '{Back}'
+        ])
+        foo_card_type.__setitem__.assert_has_calls([
+            call('qfmt', foo_card_type_front),
+            call('afmt', foo_card_type_back)
+        ])
+        collection.models.add_template.assert_has_calls([
+            call(models['Foo Note Type'], templates['Foo Card Type']),
+            call(models['Foo Note Type 2'], templates['Foo Card Type 2'])
+        ])
+        collection.models.save.assert_has_calls([
+            call(models['Foo Note Type']),
+            call(models['Foo Note Type 2'])
         ])
         bar_deck = decks[1234567890125]
         bar_deck.__setitem__.assert_has_calls([
@@ -177,6 +237,17 @@ class TestCollection(unittest.TestCase):
             notes[i].__setitem__.assert_has_calls([
                 call('Foo1', values[1]),
                 call('Foo2', values[2])
+            ])
+        note_tags = [
+            ('Tag1', 'Tag2', 'Tag3'),
+            ('Tag1', 'Tag2', 'Tag3'),
+            ('Tag1', 'Tag2'),
+            ('Tag1', 'Tag2')
+        ]
+        for i, tags in enumerate(note_tags):
+            notes[i].addTag.assert_has_calls([
+                call(tag)
+                for tag in tags
             ])
         collection.add_note.assert_has_calls([
             call(note, 1234567890125)
