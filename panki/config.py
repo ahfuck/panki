@@ -133,12 +133,13 @@ class NoteTypeConfig(Config):
 
     def __init__(
             self, path=None, file=None, id=None, name=None, fields=None,
-            css=None, js=None, card_types=None):
+            js=None, tags=None, css=None, card_types=None):
         super().__init__(path, file)
         config = (file.contents or {}) if file else {}
         self.id = id or config.get('id') or generate_id()
         self.name = name or config.get('name')
         self.fields = fields or config.get('fields') or []
+        self.tags = tags or config.get('tags') or []
         self.css = css or []
         self.js = js or []
         self.card_types = card_types or []
@@ -175,6 +176,8 @@ class NoteTypeConfig(Config):
         yield ('id', self.id)
         yield ('name', self.name)
         yield ('fields', self.fields)
+        if self.tags:
+            yield ('tags', self.tags)
         if self.css:
             css = [config.path for config in self.css]
             yield ('css', css)
@@ -246,12 +249,15 @@ class DeckConfig(Config):
 
 class NoteGroupConfig(Config):
 
-    def __init__(self, path=None, file=None, type=None, guid=None, data=None):
+    def __init__(
+            self, path=None, file=None, type=None, guid=None, data=None,
+            tags=None):
         super().__init__(path, file)
         config = (file.contents or {}) if file else {}
         self.type = type or config.get('type')
         self.guid = guid or config.get('guid')
         self.data = data or []
+        self.tags = tags or config.get('tags') or []
 
     def add_data(self, path=None, file=None):
         data = FileConfig(path=path, file=file)
@@ -268,6 +274,8 @@ class NoteGroupConfig(Config):
             yield ('guid', self.guid)
         data = [config.path for config in self.data]
         yield ('data', data)
+        if self.tags:
+            yield ('tags', self.tags)
 
 
 class FileConfig(Config):
@@ -315,7 +323,8 @@ def load_note_type(project, config):
         file=file,
         id=config.get('id'),
         name=config.get('name'),
-        fields=config.get('fields')
+        fields=config.get('fields'),
+        tags=config.get('tags')
     )
     css_paths = config.get('css', [])
     if not isinstance(css_paths, list):
@@ -407,7 +416,8 @@ def load_deck_note_group(project, deck, config):
         path=path,
         file=file,
         type=config.get('type'),
-        guid=config.get('guid')
+        guid=config.get('guid'),
+        tags=config.get('tags')
     )
     data_paths = config.get('data', [])
     if not isinstance(data_paths, list):

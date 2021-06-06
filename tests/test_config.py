@@ -16,6 +16,7 @@ class TestConfig(unittest.TestCase):
                     'id': 1234123412341,
                     'name': 'Note Type 1',
                     'fields': ['FieldOne', 'FieldTwo'],
+                    'tags': ['Tag1', 'Tag2'],
                     'css': ['common.css', 'note-type1.css'],
                     'js': ['common.js', 'note-type1.js'],
                     'cardTypes': [
@@ -35,7 +36,7 @@ class TestConfig(unittest.TestCase):
                     'package': 'my-deck1.apkg',
                     'notes': [
                         {
-                            'type': 'Card Type 1',
+                            'type': 'Note Type 1',
                             'guid': (
                                 '{{__DeckId__}}:' +
                                 '{{__NoteTypeId__}}:' +
@@ -45,7 +46,8 @@ class TestConfig(unittest.TestCase):
                             'data': [
                                 'data1.csv',
                                 'data2.csv'
-                            ]
+                            ],
+                            'tags': ['Tag3']
                         },
                         'note-group2.json'
                     ]
@@ -61,6 +63,7 @@ class TestConfig(unittest.TestCase):
             'id': 1234123412342,
             'name': 'Note Type 2',
             'fields': ['FieldA', 'FieldB'],
+            'tags': ['Tag4'],
             'css': 'common.css',
             'js': 'common.js',
             'cardTypes': [
@@ -71,7 +74,7 @@ class TestConfig(unittest.TestCase):
             ]
         },
         'note-group2.json': {
-            'type': 'Card Type 2',
+            'type': 'Note Type 1',
             'data': 'data3.csv'
         },
         'deck2.json': {
@@ -80,7 +83,7 @@ class TestConfig(unittest.TestCase):
             'package': 'my-deck2.apkg',
             'notes': [
                 {
-                    'type': 'Card Type 3',
+                    'type': 'Note Type 2',
                     'data': [
                         'data4.csv'
                     ]
@@ -313,7 +316,8 @@ class TestConfig(unittest.TestCase):
         note_type = project.add_note_type(
             id=1234123412341,
             name='Note Type 1',
-            fields=['FieldOne', 'FieldTwo']
+            fields=['FieldOne', 'FieldTwo'],
+            tags=['Tag1', 'Tag2']
         )
         note_type.add_css(path='common.css')
         note_type.add_css(path='note-type1.css')
@@ -329,8 +333,9 @@ class TestConfig(unittest.TestCase):
             package='my-deck1.apkg'
         )
         note_group = deck.add_notes(
-            type='Card Type 1',
-            guid='{{__DeckId__}}:{{__NoteTypeId__}}:{{FieldOne}}:{{FieldTwo}}'
+            type='Note Type 1',
+            guid='{{__DeckId__}}:{{__NoteTypeId__}}:{{FieldOne}}:{{FieldTwo}}',
+            tags=['Tag3']
         )
         note_group.add_data(path='data1.csv')
         note_group.add_data(path='data2.csv')
